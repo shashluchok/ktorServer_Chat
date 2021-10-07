@@ -1,6 +1,7 @@
 package com.example
 
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -16,7 +17,11 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
     install(WebSockets)
-
+    routing {
+        get("/") {
+            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
+        }
+    }
     routing {
         val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
         webSocket("/chat") {
