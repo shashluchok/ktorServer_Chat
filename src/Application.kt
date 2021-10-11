@@ -24,12 +24,13 @@ fun Application.module(testing: Boolean = false) {
     }
     routing {
         val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
-        webSocket("/chat") {
-            println("Adding user!")
-            val thisConnection = Connection(this)
+        webSocket("/chat{login}") {
+            println("Новый пользователь ${call.parameters["login"]}")
+
+            val thisConnection = Connection(this, call.parameters["login"])
             connections += thisConnection
             try {
-                send("You are connected! There are ${connections.count()} users here.")
+                send("Вы вошли в чат. Число пользователей онлайн: ${connections.count()}")
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
                     val receivedText = frame.readText()
@@ -41,7 +42,7 @@ fun Application.module(testing: Boolean = false) {
             } catch (e: Exception) {
                 println(e.localizedMessage)
             } finally {
-                println("Removing $thisConnection!")
+                println("Пользователь $thisConnection вышел")
                 connections -= thisConnection
             }
         }
@@ -49,9 +50,9 @@ fun Application.module(testing: Boolean = false) {
 
 }
 
-class Connection(val session: DefaultWebSocketSession) {
+class Connection(val session: DefaultWebSocketSession, userName:String?) {
     companion object {
         var lastId = AtomicInteger(0)
     }
-    val name = "user${lastId.getAndIncrement()}"
+    val name = if(userName.isNullOrEmpty()) "user${lastId.getAndIncrement()}" else userName
 }
