@@ -1,5 +1,6 @@
 package com.example
 
+import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
@@ -34,9 +35,9 @@ fun Application.module(testing: Boolean = false) {
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
                     val receivedText = frame.readText()
-                    val textWithUsername = "[${thisConnection.name}]: $receivedText"
+                    val userWithMessage = Gson().toJson(UserWithMessage(user = thisConnection.name, message = receivedText))
                     connections.forEach {
-                        it.session.send(textWithUsername)
+                        it.session.send(userWithMessage)
                     }
                 }
             } catch (e: Exception) {
@@ -56,3 +57,8 @@ class Connection(val session: DefaultWebSocketSession, userName:String?) {
     }
     val name = if(userName.isNullOrEmpty()) "user${lastId.getAndIncrement()}" else userName
 }
+
+data class UserWithMessage (
+    val user:String,
+    val message:String
+        )
