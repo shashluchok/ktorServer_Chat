@@ -33,6 +33,7 @@ fun Application.module(testing: Boolean = false) {
             try {
                 val greetingsMessage = "Вы вошли в чат. Число пользователей онлайн: ${connections.count()}"
                 send(Gson().toJson(UserWithMessage(user = "Admin", message = greetingsMessage)))
+                println(Gson().toJson(UserWithMessage(user = "Admin", message = greetingsMessage)))
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
                     val receivedText = frame.readText()
