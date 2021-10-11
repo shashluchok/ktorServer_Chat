@@ -46,6 +46,10 @@ fun Application.module(testing: Boolean = false) {
                 println(e.localizedMessage)
             } finally {
                 println("Пользователь $thisConnection вышел")
+                val userWithMessage = Gson().toJson(UserWithMessage(user = "Admin", message = "Пользователь ${thisConnection.name} вышел"))
+                connections.forEach {
+                    it.session.send(userWithMessage)
+                }
                 connections -= thisConnection
             }
         }
